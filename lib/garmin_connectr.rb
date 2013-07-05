@@ -134,7 +134,7 @@ class GarminConnectrActivity
     csv[1, csv.length-1].each_with_index do |row, index|
       split = GarminConnectrActivitySplit.new
       keys.each_with_index do |key, key_index|
-        split.data[ key.to_sym ] = row[ key_index ].strip
+        split.data[ key.to_sym ] = row[ key_index ].try(:strip) # don't fail if the field is nil
       end
       index < csv.length - 2 ? @splits << split : @split_summary = split
     end
