@@ -56,6 +56,7 @@ class GarminConnectrActivity
     @data[:name] = opts[:name]
     @data[:url] = "http://connect.garmin.com/activity/#{ @id }"
     @loaded = false
+    @splits_loaded = false
   end
     
   def load!
@@ -106,9 +107,7 @@ class GarminConnectrActivity
     end
 
     ## Splits
-    if self.split_count > 0
-      load_splits!
-    end
+    @splits_loaded = true if self.split_count == 0
 
     @loaded = true
     self
@@ -120,11 +119,10 @@ class GarminConnectrActivity
   
   def splits
     self.load! unless @loaded
+    self.load_splits! unless @splits_loaded
     @splits
   end
 
-  private
-  
   def load_splits!
     doc = open("http://connect.garmin.com/csvExporter/#{ @id }.csv")
 
@@ -137,11 +135,16 @@ class GarminConnectrActivity
     csv[1, csv.length-1].each_with_index do |row, index|
       split = GarminConnectrActivitySplit.new
       keys.each_with_index do |key, key_index|
-        split.data[ key.to_sym ] = row[ key_index ].try(:strip) # don't fail if the field is nil
+        value = row[ key_index ]
+        value.strip! if value.is_a? String
+        split.data[ key.to_sym ] = value
       end
       index < csv.length - 2 ? @splits << split : @split_summary = split
     end
+    @splits_loaded = true
   end
+
+  private
   
   def method_missing(name)
     
