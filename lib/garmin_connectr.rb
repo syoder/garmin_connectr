@@ -92,7 +92,7 @@ class GarminConnectrActivity
     
     @scrape[:details][:split_count] = doc.css('.detailsLapsNumber')[0].inner_html.to_i rescue 0
     
-    @scrape[:details].each { |k,v| @data[k] = v }
+    @scrape[:details].each { |k,v| @data[k] = v.try(:strip) }
     @scrape[:summaries].each do |k,v|
       doc.css("#{ v[:css] } td").each do |e|
         if e.inner_html =~ /:[ ]?$/
