@@ -8,6 +8,11 @@ Rake::TestTask.new(:test) do |test|
   test.verbose = true
 end
 
+desc "Open an irb session preloaded with this library"
+task :console do
+  sh "irb -rubygems -I lib -r garmin_connectr.rb"
+end
+
 begin
   require 'rcov/rcovtask'
   Rcov::RcovTask.new do |test|
